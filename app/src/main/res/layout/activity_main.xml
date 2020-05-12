@@ -28,6 +28,7 @@
         android:layout_below="@id/song_img"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:max="100"
         android:thumb="@drawable/seek_thumb_pic"/>
 
     <ListView
@@ -61,20 +62,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/pre_media" />
+            android:clickable="true"
+            android:src="@drawable/preselector" />
 
         <ImageView
             android:id="@+id/backward"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_backward_normal" />
+            android:clickable="true"
+            android:src="@drawable/backwardselector" />
 
         <ImageView
             android:id="@+id/pause"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:src="@drawable/ic_pause_normal" />
 
         <ImageView
@@ -82,20 +86,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_forward_normal" />
+            android:clickable="true"
+            android:src="@drawable/forwardselector" />
 
         <ImageView
             android:id="@+id/next"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/next_media" />
+            android:clickable="true"
+            android:src="@drawable/nextselector" />
 
         <ImageView
             android:id="@+id/shuffle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:clickable="true"
             android:src="@drawable/ic_shuffle" />
 
         <android.support.v4.widget.Space
