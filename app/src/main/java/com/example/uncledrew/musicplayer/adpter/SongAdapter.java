@@ -1,4 +1,4 @@
-package com.example.uncledrew.musicplayer;
+package com.example.uncledrew.musicplayer.adpter;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.uncledrew.musicplayer.R;
 import com.example.uncledrew.musicplayer.pojo.Song;
 
 import java.util.List;
