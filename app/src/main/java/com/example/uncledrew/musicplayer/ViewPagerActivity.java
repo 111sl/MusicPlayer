@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.example.uncledrew.musicplayer.adpter.ViewPagerAdapter;
 import com.example.uncledrew.musicplayer.fragment.FirstFragment;
@@ -22,6 +23,9 @@ public class ViewPagerActivity extends AppCompatActivity {
     private List<Fragment> fragmentList;
     private ViewPagerAdapter adapter;
     private ViewPager viewPager;
+    private ImageView image1;
+    private ImageView image2;
+    private ImageView image3;
     public static final String TAG = "FirstFragment";
 
 
@@ -30,6 +34,9 @@ public class ViewPagerActivity extends AppCompatActivity {
         Log.d(TAG, "Activity:onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
+        image1 = findViewById(R.id.img_1);
+        image2 = findViewById(R.id.img_2);
+        image3 = findViewById(R.id.img_3);
         viewPager = findViewById(R.id.viewPager);
         fragmentList = new ArrayList<>();
         fragmentList.add(new FirstFragment());
@@ -38,6 +45,34 @@ public class ViewPagerActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         adapter = new ViewPagerAdapter(fragmentManager,fragmentList);
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                if(i==0){
+                    image1.setImageResource(R.drawable.ic_play_normal);
+                    image2.setImageResource(R.drawable.seek_thumb_pic);
+                    image3.setImageResource(R.drawable.seek_thumb_pic);
+                }else if(i==1){
+                    image2.setImageResource(R.drawable.ic_play_normal);
+                    image1.setImageResource(R.drawable.seek_thumb_pic);
+                    image3.setImageResource(R.drawable.seek_thumb_pic);
+                }else{
+                    image3.setImageResource(R.drawable.ic_play_normal);
+                    image2.setImageResource(R.drawable.seek_thumb_pic);
+                    image1.setImageResource(R.drawable.seek_thumb_pic);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
         viewPager.setCurrentItem(0);
     }
 
