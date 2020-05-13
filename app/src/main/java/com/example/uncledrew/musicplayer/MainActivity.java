@@ -12,7 +12,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView songName;
     private ListView songList;
     private PlayerService.PlayerBinder playBinder;
+    private TextView playTime;
+    private TextView totalTime;
+    public static final int UPDATE_TEXT = 1;
     RefreshReceiver refreshReceiver = new RefreshReceiver();
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -79,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         next.setOnClickListener(this);
         seekBar = findViewById(R.id.seekBar);
         songList = findViewById(R.id.song_list);
+        playTime = findViewById(R.id.play_time);
+        totalTime = findViewById(R.id.total_time);
 
         IntentFilter intentFilter = new IntentFilter("com.uncle.CHANGESONG");
 
@@ -156,6 +163,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void refresh(int position){
         songName.setText(data.get(position).getName());
+        int totalTimeNum = playBinder.getMax(position);
+        String timeNum;
+        if(totalTimeNum/1000/60>0){
+            if(totalTimeNum/1000%60<10){
+                timeNum = totalTimeNum/1000/60 + ":0"+ totalTimeNum/1000%60;
+            }else{
+                timeNum = totalTimeNum/1000/60 + ":"+ totalTimeNum/1000%60;
+            }
+        }else if(totalTimeNum/1000<10){
+            timeNum = "0:0" + totalTimeNum/1000;
+        }else{
+            timeNum = "0:" + totalTimeNum/1000;
+        }
+        totalTime.setText(timeNum);
         seekBar.setMax(playBinder.getMax(position));
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -163,8 +184,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 int currentPosition = playBinder.getCurrentPosition();
                 seekBar.setProgress(currentPosition);
+                Message message = new Message();
+                message.what = UPDATE_TEXT;
+                handler.sendMessage(message);
             }
         },0,500);
+
     }
 
 
@@ -182,4 +207,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         unregisterReceiver(refreshReceiver);
     }
+
+    private Handler handler = new Handler(){
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case UPDATE_TEXT:
+                    int totalTimeNum = playBinder.getCurrentPosition();
+                    String timeNum;
+                    if(totalTimeNum/1000/60>0){
+                        if(totalTimeNum/1000%60<10){
+                            timeNum = totalTimeNum/1000/60 + ":0"+ totalTimeNum/1000%60;
+                        }else{
+                            timeNum = totalTimeNum/1000/60 + ":"+ totalTimeNum/1000%60;
+                        }
+                    }else if(totalTimeNum/1000<10){
+                        timeNum = "0:0" + totalTimeNum/1000;
+                    }else{
+                        timeNum = "0:" + totalTimeNum/1000;
+                    }
+                    playTime.setText(timeNum);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 }

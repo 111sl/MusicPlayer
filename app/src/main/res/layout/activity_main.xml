@@ -31,10 +31,25 @@
         android:max="100"
         android:thumb="@drawable/seek_thumb_pic"/>
 
+    <TextView
+        android:layout_below="@id/seekBar"
+        android:id="@+id/play_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"/>
+
+    <TextView
+        android:id="@+id/total_time"
+        android:layout_below="@id/seekBar"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"/>
+
     <ListView
         android:id="@+id/song_list"
         android:layout_above="@id/button_layout"
-        android:layout_below="@id/seekBar"
+        android:layout_below="@id/play_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </ListView>
