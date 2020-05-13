@@ -1,11 +1,18 @@
 package com.example.uncledrew.musicplayer;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.uncledrew.musicplayer.pojo.Song;
+import com.example.uncledrew.musicplayer.service.PlayerService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,8 +46,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private SeekBar seekBar;
     private TextView songName;
-    private int playNowIndex = -1;//当前播放曲目下标
+    private ListView songList;
+    private PlayerService.PlayerBinder playBinder;
+    RefreshReceiver refreshReceiver = new RefreshReceiver();
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            playBinder = (PlayerService.PlayerBinder)service;
+            data = playBinder.init();
+            SongAdapter adapter = new SongAdapter(MainActivity.this,R.layout.song_item,data);
+            songList.setAdapter(adapter);
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
 
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,15 +78,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         forward.setOnClickListener(this);
         next.setOnClickListener(this);
         seekBar = findViewById(R.id.seekBar);
-        ListView songList = findViewById(R.id.song_list);
-        if(ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
-        }else{
-            init();
-        }
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data);
-        SongAdapter adapter = new SongAdapter(this,R.layout.song_item,data);
-        songList.setAdapter(adapter);
+        songList = findViewById(R.id.song_list);
+
+        IntentFilter intentFilter = new IntentFilter("com.uncle.CHANGESONG");
+
+        registerReceiver(refreshReceiver,intentFilter);
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -80,122 +99,87 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onStopTrackingTouch(SeekBar seekBar) {
                 //获取进度
                 int progress = seekBar.getProgress();
-                mediaPlayer.seekTo(progress);
+                playBinder.seekTo(progress);
             }
         });
 
         songList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(playNowIndex == -1 || position != playNowIndex){
-
-                    playNowIndex = position;
-                    play(position);
-                }
+                playBinder.play(position);
+                refresh(position);
             }
         });
+        Intent intent = new Intent(this,PlayerService.class);
+        bindService(intent,serviceConnection,BIND_AUTO_CREATE);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.pre:
-                if(playNowIndex-1>=0){
-                    play(playNowIndex-1);
-                    playNowIndex--;
-                }
+                playBinder.pre();
                 break;
             case R.id.forward:
                 break;
             case R.id.pause:
-                if(mediaPlayer.isPlaying()){
+                if(playBinder.isPlaying()){
                     pause.setImageResource(R.drawable.ic_play_normal);
-                    mediaPlayer.pause();
                 }else{
                     pause.setImageResource(R.drawable.ic_pause_normal);
-                    mediaPlayer.start();
                 }
+                playBinder.pause();
                 break;
             case R.id.backward:
                 break;
             case R.id.next:
-                if(playNowIndex+1<data.size()){
-                    play(playNowIndex+1);
-                    playNowIndex++;
-                }
+                playBinder.next();
                 break;
             default:
         }
     }
 
-    //初始化数据
-    private void init(){
-        ContentResolver resolver = getContentResolver();
-        Uri music = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String name = MediaStore.Video.Media.TITLE;
-        String path = MediaStore.Video.Media.DATA;
-        Cursor query = resolver.query(music,null,null,null,null);
-        while(query.moveToNext()){
-            Song song = new Song();
-            String songName = query.getString(query.getColumnIndex(name));
-            String songPath = query.getString(query.getColumnIndex(path));
-            song.setName(songName);
-            song.setPath(songPath);
-            data.add(song);
-        }
-    }
-
-
-    private void play(int position){
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(data.get(position).getPath());
-            songName.setText(data.get(position).getName());
-            mediaPlayer.prepare();
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mediaPlayer.start();
-                    seekBar.setMax(mediaPlayer.getDuration());
-
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            int currentPosition = mediaPlayer.getCurrentPosition();
-                            seekBar.setProgress(currentPosition);
-                        }
-                    },0,500);
-                }
-            });
-
-            //监听是否播放完毕
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    if(playNowIndex+1<data.size()){
-                        play(playNowIndex+1);
-                        playNowIndex++;
-                    }
-                }
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
             case 1:
                 if(grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    init();
+                    data = playBinder.init();
                 }else {
 
                 }
                 break;
             default:
         }
+    }
+
+    private void refresh(int position){
+        songName.setText(data.get(position).getName());
+        seekBar.setMax(playBinder.getMax(position));
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                int currentPosition = playBinder.getCurrentPosition();
+                seekBar.setProgress(currentPosition);
+            }
+        },0,500);
+    }
+
+
+    class RefreshReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int position = intent.getIntExtra("position",0);
+            refresh(position);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(refreshReceiver);
     }
 }
