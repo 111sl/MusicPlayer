@@ -97,6 +97,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        finish();
         Log.d(TAG, "Activity:onPause");
     }
 

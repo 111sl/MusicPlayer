@@ -62,15 +62,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         songName = findViewById(R.id.song_name);
         ImageView pre = findViewById(R.id.pre);
-        ImageView backward = findViewById(R.id.backward);
         pause = findViewById(R.id.pause);
-        ImageView forward = findViewById(R.id.forward);
         ImageView next = findViewById(R.id.next);
+        ImageView shuffle = findViewById(R.id.shuffle);
         pre.setOnClickListener(this);
-        backward.setOnClickListener(this);
         pause.setOnClickListener(this);
-        forward.setOnClickListener(this);
         next.setOnClickListener(this);
+        shuffle.setOnClickListener(this);
         seekBar = findViewById(R.id.seekBar);
         songList = findViewById(R.id.song_list);
         playTime = findViewById(R.id.play_time);
@@ -115,8 +113,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.pre:
                 playBinder.pre();
-                break;
-            case R.id.forward:
+                if(playBinder.isPlaying()){
+                    pause.setImageResource(R.drawable.ic_play_normal);
+                }else{
+                    pause.setImageResource(R.drawable.ic_pause_normal);
+                }
                 break;
             case R.id.pause:
                 if(playBinder.isPlaying()){
@@ -126,11 +127,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 playBinder.pause();
                 break;
-            case R.id.backward:
-                break;
             case R.id.next:
                 playBinder.next();
+                if(playBinder.isPlaying()){
+                    pause.setImageResource(R.drawable.ic_play_normal);
+                }else{
+                    pause.setImageResource(R.drawable.ic_pause_normal);
+                }
                 break;
+            case R.id.shuffle:
+                Intent intent = new Intent(MainActivity.this,Download.class);
+                startActivity(intent);
             default:
         }
     }

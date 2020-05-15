@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter;
 import com.example.uncledrew.musicplayer.R;
 import com.example.uncledrew.musicplayer.pojo.Song;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +94,18 @@ public class PlayerService extends Service {
                 Song song = new Song();
                 String songName = query.getString(query.getColumnIndex(name));
                 String songPath = query.getString(query.getColumnIndex(path));
+                song.setName(songName);
+                song.setPath(songPath);
+                data.add(song);
+            }
+            String fileName="2.mp3";
+            String SDCard = Environment.getExternalStorageDirectory()+"";
+            String pathName = SDCard+"/file/"+fileName;//文件存储路径
+            File file=new File(pathName);
+            if(file.exists()){
+                Song song = new Song();
+                String songName = file.getName();
+                String songPath = pathName;
                 song.setName(songName);
                 song.setPath(songPath);
                 data.add(song);

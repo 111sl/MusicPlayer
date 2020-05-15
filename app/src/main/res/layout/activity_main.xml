@@ -36,7 +36,7 @@
         android:id="@+id/play_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"/>
+        />
 
     <TextView
         android:id="@+id/total_time"
@@ -44,7 +44,7 @@
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"/>
+        />
 
     <ListView
         android:id="@+id/song_list"
@@ -80,13 +80,10 @@
             android:clickable="true"
             android:src="@drawable/preselector" />
 
-        <ImageView
-            android:id="@+id/backward"
+        <android.support.v4.widget.Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:src="@drawable/backwardselector" />
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/pause"
@@ -96,13 +93,10 @@
             android:clickable="true"
             android:src="@drawable/ic_pause_normal" />
 
-        <ImageView
-            android:id="@+id/forward"
+        <android.support.v4.widget.Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:src="@drawable/forwardselector" />
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/next"
@@ -112,18 +106,20 @@
             android:clickable="true"
             android:src="@drawable/nextselector" />
 
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <ImageView
             android:id="@+id/shuffle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
-            android:src="@drawable/ic_shuffle" />
+            android:layout_marginTop="30dp"
+            android:src="@drawable/download_img" />
 
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
 
     </LinearLayout>
 
